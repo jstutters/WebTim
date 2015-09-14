@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-import scanbox
+import webtim
 
 app_config = {
-    'db_url': 'sqlite:////tmp/scanbox.sqlite',
+    'db_url': 'sqlite:////tmp/webtim.sqlite',
     'monitor_path': '/tmp/foo'
 }
-app = scanbox.make_app(app_config)
+app = webtim.make_app(app_config)
 app.run()

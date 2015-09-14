@@ -9,10 +9,10 @@ from .handlers import FsEventHandler
 
 class ScanBoxMonitor(object):
     def __init__(self, db_url, monitor_path):
-        engine = create_engine('sqlite:////tmp/scanbox.sqlite')
+        engine = create_engine(db_url)
         Base.metadata.create_all(engine)
         self.Session = sessionmaker(bind=engine)
-        self.handler = FsEventHandler(self.Session)
+        self.handler = FsEventHandler(self.Session, monitor_path)
         self.observer = Observer()
         self.observer.schedule(self.handler, monitor_path, recursive=True)
 

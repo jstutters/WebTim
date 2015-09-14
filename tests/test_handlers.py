@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from scanbox.model import Base, ReceivedFile
-from scanbox.handlers import FsEventHandler
+from webtim.model import Base, ReceivedFile, ReceivedDir, Study
+from webtim.handlers import FsEventHandler
 from watchdog.events import FileSystemEvent
 from pathlib import PurePosixPath
 import pytest
@@ -15,22 +15,37 @@ def database():
     return Session
 
 
-def test_filename(database):
-    test_path = '/test/STUDY/file'
+def test_directory(database):
+    session  = database()
+    study = Study()
+    study.name = 'STUDY'
+    session.add(study)
+    session.commit()
+    test_path = '/test/STUDY/dir'
+    handler = FsEventHandler(database, '/test')
+    event = FileSystemEvent(test_path)
+    event.is_directory = True
+    handler.on_created(event)
+    f = session.query(ReceivedDir).filter_by(dirname=test_path).one()
+    assert f.dirname == test_path
+    assert f.study.name == 'STUDY'
+
+
+def test_file(database):
+    session  = database()
+    study = Study()
+    study.name = 'STUDY'
+    session.add(study)
+    new_dir = ReceivedDir()
+    new_dir.dirname = '/test/STUDY/dir'
+    new_dir.study = study
+    session.add(new_dir)
+    session.commit()
+    test_path = '/test/STUDY/dir/file'
     handler = FsEventHandler(database, '/test')
     event = FileSystemEvent(test_path)
     handler.on_created(event)
-    session  = database()
     f = session.query(ReceivedFile).filter_by(filename=test_path).one()
     assert f.filename == test_path
-    assert f.study == 'STUDY'
-
-
-def test_study(database):
-    test_path = '/test/STUDY/file'
-    handler = FsEventHandler(database, '/test')
-    event = FileSystemEvent(test_path)
-    handler.on_created(event)
-    session  = database()
-    f = session.query(ReceivedFile).filter_by(filename=test_path).one()
-    assert f.study == 'STUDY'
+    assert f.directory.dirname == '/test/STUDY/dir'
+    assert f.study.name == 'STUDY'

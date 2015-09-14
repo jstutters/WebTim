@@ -6,7 +6,7 @@ setup(name='WebTim',
       author='Jon Stutters',
       author_email='j.stutters@ucl.ac.uk',
       packages=[
-          'scanbox'
+          'webtim'
       ],
       install_requires=[
           'watchdog',
