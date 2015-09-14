@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name='ScanBox',
+setup(name='WebTim',
       version='0.0.1',
       description='Monitor received DICOM images',
       author='Jon Stutters',
